@@ -45,7 +45,7 @@ class Game():
 
         return False
 
-    def display_winner(self, screen, field_checker):
+    def display_winner(self, screen):
         if self.winner is not None:
 
             # Display the winner text
