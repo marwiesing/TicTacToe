@@ -11,6 +11,17 @@ class Game():
         self.winner = None
         self.field = {i: {'occupied': False, 'player': None, 'winning_row': False, 'winning_direction': None} for i in
                       range(1, 10)}
+        self.winning_conditions = self.set_conditions()
+
+    def set_conditions(self):
+        winning_conditions = []
+        for i in range(3):
+            winning_conditions.append({'horizontal': [(3 * i + j) for j in range(1, 4)]})
+        for i in range(3):
+            winning_conditions.append({'vertical': [(i + j + 2 * (j - 1)) for j in range(1, 4)]})
+        winning_conditions.append({'diagonal': [(j + (j - 1) * 3) for j in range(1, 4)]})
+        winning_conditions.append({'diagonal': [(j + j + 1) for j in range(1, 4)]})
+        return winning_conditions
 
     def set_icon(self, field_number):
         print(
@@ -27,36 +38,13 @@ class Game():
             self.field[field_number]['player'] = self.player
 
     def win_round(self):
-        for i in range(3):
-
-            if all(self.field[3 * i + j]['occupied'] and self.field[3 * i + j]['player'] == self.player for j in
-                   range(1, 4)):
-                for j in range(1, 4):
-                    self.field[3 * i + j]['winning_row'] = True
-                    self.field[3 * i + j]['winning_direction'] = 'horizontal'
+        for condition in self.winning_conditions:
+            direction, indices = list(condition.items())[0]
+            if all(self.field[index]['occupied'] and self.field[index]['player'] == self.player for index in indices):
+                for index in indices:
+                    self.field[index]['winning_row'] = True
+                    self.field[index]['winning_direction'] = direction
                 return True
-
-            if all(self.field[i + j + 2 * (j - 1)]['occupied'] and self.field[i + j + 2 * (j - 1)][
-                'player'] == self.player for j in range(1, 4)):
-                for j in range(1, 4):
-                    self.field[i + j + 2 * (j - 1)]['winning_row'] = True
-                    self.field[i + j + 2 * (j - 1)]['winning_direction'] = 'vertical'
-                return True
-
-        if all(self.field[j + ((j - 1) * 3)]['occupied'] and self.field[j + ((j - 1) * 3)]['player'] == self.player for
-               j in range(1, 4)):
-            for j in range(1, 4):
-                self.field[j + ((j - 1) * 3)]['winning_row'] = True
-                self.field[j + ((j - 1) * 3)]['winning_direction'] = 'diagonal'
-            return True
-
-        if all(self.field[j + j + 1]['occupied'] and self.field[j + j + 1]['player'] == self.player for j in
-               range(1, 4)):
-            for j in range(1, 4):
-                self.field[j + j + 1]['winning_row'] = True
-                self.field[j + j + 1]['winning_direction'] = 'diagonal'
-            return True
-
         return False
 
     def display_winner(self, screen):
