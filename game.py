@@ -9,7 +9,8 @@ class Game():
         self.round = True
         self.player = None
         self.winner = None
-        self.field = {i: {'occupied': False, 'player': None} for i in range(1, 10)}
+        self.field = {i: {'occupied': False, 'player': None, 'winning_row': False, 'winning_direction': None} for i in
+                      range(1, 10)}
 
     def set_icon(self, field_number):
         print(
@@ -27,20 +28,33 @@ class Game():
 
     def win_round(self):
         for i in range(3):
-            if (
-                    all(self.field[3 * i + j]['occupied'] and self.field[3 * i + j]['player'] == self.player for j in
-                        range(1, 4)) or
-                    all(self.field[i + j + 2 * (j - 1)]['occupied'] and self.field[i + j + 2 * (j - 1)][
-                        'player'] == self.player for j in range(1, 4))
-            ):
+
+            if all(self.field[3 * i + j]['occupied'] and self.field[3 * i + j]['player'] == self.player for j in
+                   range(1, 4)):
+                for j in range(1, 4):
+                    self.field[3 * i + j]['winning_row'] = True
+                    self.field[3 * i + j]['winning_direction'] = 'horizontal'
                 return True
 
-        if (
-                all(self.field[j + ((j - 1) * 3)]['occupied'] and self.field[j + ((j - 1) * 3)]['player'] == self.player
-                    for j in range(1, 4)) or
-                all(self.field[j + j + 1]['occupied'] and self.field[j + j + 1]['player'] == self.player for j in
-                    range(1, 4))
-        ):
+            if all(self.field[i + j + 2 * (j - 1)]['occupied'] and self.field[i + j + 2 * (j - 1)][
+                'player'] == self.player for j in range(1, 4)):
+                for j in range(1, 4):
+                    self.field[i + j + 2 * (j - 1)]['winning_row'] = True
+                    self.field[i + j + 2 * (j - 1)]['winning_direction'] = 'vertical'
+                return True
+
+        if all(self.field[j + ((j - 1) * 3)]['occupied'] and self.field[j + ((j - 1) * 3)]['player'] == self.player for
+               j in range(1, 4)):
+            for j in range(1, 4):
+                self.field[j + ((j - 1) * 3)]['winning_row'] = True
+                self.field[j + ((j - 1) * 3)]['winning_direction'] = 'diagonal'
+            return True
+
+        if all(self.field[j + j + 1]['occupied'] and self.field[j + j + 1]['player'] == self.player for j in
+               range(1, 4)):
+            for j in range(1, 4):
+                self.field[j + j + 1]['winning_row'] = True
+                self.field[j + j + 1]['winning_direction'] = 'diagonal'
             return True
 
         return False
@@ -70,3 +84,5 @@ class Game():
         for key in self.field:
             self.field[key]['occupied'] = False
             self.field[key]['player'] = None
+            self.field[key]['winning_row'] = False
+            self.field[key]['winning_direction'] = False

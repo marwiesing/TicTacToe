@@ -1,5 +1,5 @@
 import pygame
-from constants import GAME_COLOUR, LINE_COLOR
+from constants import GAME_COLOUR, LINE_COLOR, WINNING_COLOR
 
 
 class Gameboard:
@@ -47,14 +47,14 @@ class Gameboard:
         for r in range(0, self.rows):
             for c in range(0, self.columns):
                 field_nr += 1
-                line1 = {
+                cross_line_horizontal = {
                     'x1': round(x_position + (x_spacing * c) + 10),
                     'y1': round(y_position + (y_spacing * r) + 10),
                     'x2': round(x_position + (x_spacing * c) + 100),
                     'y2': round(y_position + (y_spacing * r) + 100),
                 }
 
-                line2 = {
+                cross_line_vertical = {
                     'x1': round(x_position + (x_spacing * c) + 10),
                     'y1': round(y_position + (y_spacing * r) + 100),
                     'x2': round(x_position + (x_spacing * c) + 100),
@@ -68,20 +68,25 @@ class Gameboard:
                     if self.game.field[field_nr]['player'] == 1:
                         # Draw X in this field
                         pygame.draw.line(self.screen, LINE_COLOR,
-                                         (line1['x1'], line1['y1']),
-                                         (line1['x2'], line1['y2']),
+                                         (cross_line_horizontal['x1'], cross_line_horizontal['y1']),
+                                         (cross_line_horizontal['x2'], cross_line_horizontal['y2']),
                                          8)
                         pygame.draw.line(self.screen, LINE_COLOR,
-                                         (line2['x1'], line2['y1']),
-                                         (line2['x2'], line2['y2']),
+                                         (cross_line_vertical['x1'], cross_line_vertical['y1']),
+                                         (cross_line_vertical['x2'], cross_line_vertical['y2']),
                                          8)
                     else:
                         # Draw Circle in this field
                         pygame.draw.circle(self.screen, LINE_COLOR, circle_center, 50, 5)
 
+    def draw_winning_row(self):
+        for key in self.game.field:
+            if self.game.field[key]['winning_row'] == True:
+                print(f'Winning fields are: {key}, Richtung: {self.game.field[key]["winning_direction"]}')
+
     def score(self):
-        player_score_text = self.font.render(f'Player: {self.game.player_score}', True, (255, 255, 255))
-        computer_score_text = self.font.render(f'Computer: {self.game.computer_score}', True, (255, 255, 255))
+        player_score_text = self.font.render(f'Player: {self.game.player_score}', True, (WINNING_COLOR))
+        computer_score_text = self.font.render(f'Computer: {self.game.computer_score}', True, (WINNING_COLOR))
         self.screen.blit(player_score_text, (0, 5))
         self.screen.blit(computer_score_text, (0, 30))
 
