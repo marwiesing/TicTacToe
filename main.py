@@ -8,7 +8,6 @@ pygame.display.set_caption('Tic Tac Toe')
 screen = pygame.display.set_mode((800, 600))
 clock = pygame.time.Clock()
 
-
 game = Game()
 gameboard = Gameboard(game, screen, X, Y, WIDTH, HEIGHT, ROWS, COLUMNS)
 
@@ -19,16 +18,15 @@ while RUNNING:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 x, y = event.pos
-                print(f"Mouse click at coordinates ({x}, {y})")
+                # print(f"Mouse click at coordinates ({x}, {y})")
                 field_number = gameboard.get_field_number(x, y)
                 if field_number is not None:
-                    #print(f"Mouse click in field {field_number}")
+                    # print(f"Mouse click in field {field_number}")
                     game.set_icon(field_number)
 
-
     screen.fill(GAME_COLOUR)
-    gameboard.draw()
-    gameboard.game_action()
+    gameboard.draw_game_field()
+    gameboard.draw_xo()
     gameboard.score()
 
     if game.win_round():
@@ -40,9 +38,10 @@ while RUNNING:
         else:
             game.computer_score += 1
         game.reset_game()
+    elif game.draw():
+        game.display_draw(screen)
 
     pygame.display.flip()
     clock.tick(60)
-
 
 pygame.quit()

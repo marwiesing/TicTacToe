@@ -15,6 +15,33 @@ class Gameboard:
         self.row_spacing = height / rows
         self.col_spacing = width / columns
         self.font = pygame.font.Font(None, 36)
+        self.coordinates = self.calculate_coordinates()
+
+    def calculate_coordinates(self):
+        coordinates = {}
+        field_nr = 0
+        for r in range(self.rows):
+            for c in range(self.columns):
+                field_nr += 1
+                coordinates[field_nr] = {
+                    'cross_line_horizontal': {
+                        'x1': round(self.x + (self.row_spacing * c) + 10),
+                        'y1': round(self.y + (self.col_spacing * r) + 10),
+                        'x2': round(self.x + (self.row_spacing * c) + 100),
+                        'y2': round(self.y + (self.col_spacing * r) + 100),
+                    },
+                    'cross_line_vertical': {
+                        'x1': round(self.x + (self.row_spacing * c) + 10),
+                        'y1': round(self.y + (self.col_spacing * r) + 100),
+                        'x2': round(self.x + (self.row_spacing * c) + 100),
+                        'y2': round(self.y + (self.col_spacing * r) + 10),
+                    },
+                    'circle_center': (
+                        round(self.x + (self.row_spacing * c) + (self.row_spacing / 2)),
+                        round(self.y + (self.col_spacing * r) + (self.col_spacing / 2))
+                    )
+                }
+        return coordinates
 
     def get_field_number(self, click_x, click_y):
         for row in range(self.rows):
@@ -28,7 +55,7 @@ class Gameboard:
                     return row * self.columns + col + 1
         return None
 
-    def draw(self):
+    def draw_game_field(self):
         pygame.draw.rect(self.screen, GAME_COLOUR, pygame.Rect(self.x, self.y, self.width, self.height), 2)
         for i in range(1, self.rows):
             y_position = self.y + i * self.row_spacing
@@ -38,51 +65,63 @@ class Gameboard:
             x_position = self.x + i * self.col_spacing
             pygame.draw.line(self.screen, LINE_COLOR, (x_position, self.y), (x_position, self.y + self.height), 5)
 
-    def game_action(self):
-        field_nr = 0
-        x_position = self.x
-        y_position = self.y
-        x_spacing = self.row_spacing
-        y_spacing = self.col_spacing
-        for r in range(0, self.rows):
-            for c in range(0, self.columns):
-                field_nr += 1
-                cross_line_horizontal = {
-                    'x1': round(x_position + (x_spacing * c) + 10),
-                    'y1': round(y_position + (y_spacing * r) + 10),
-                    'x2': round(x_position + (x_spacing * c) + 100),
-                    'y2': round(y_position + (y_spacing * r) + 100),
-                }
+    def draw_xo(self):
+        for field_nr, coord in self.coordinates.items():
+            if self.game.field[field_nr]['occupied'] == True:
+                if self.game.field[field_nr]['player'] == 1:
+                    # Draw X in this field
+                    pygame.draw.line(self.screen, LINE_COLOR,
+                                     (coord['cross_line_horizontal']['x1'], coord['cross_line_horizontal']['y1']),
+                                     (coord['cross_line_horizontal']['x2'], coord['cross_line_horizontal']['y2']),
+                                     8)
+                    pygame.draw.line(self.screen, LINE_COLOR,
+                                     (coord['cross_line_vertical']['x1'], coord['cross_line_vertical']['y1']),
+                                     (coord['cross_line_vertical']['x2'], coord['cross_line_vertical']['y2']),
+                                     8)
+                else:
+                    # Draw Circle in this field
+                    pygame.draw.circle(self.screen, LINE_COLOR, coord['circle_center'], 50, 5)
 
-                cross_line_vertical = {
-                    'x1': round(x_position + (x_spacing * c) + 10),
-                    'y1': round(y_position + (y_spacing * r) + 100),
-                    'x2': round(x_position + (x_spacing * c) + 100),
-                    'y2': round(y_position + (y_spacing * r) + 10),
-                }
-                circle_center = (
-                    round(x_position + (x_spacing * c) + (x_spacing / 2)),
-                    round(y_position + (y_spacing * r) + (y_spacing / 2))
-                )
-                if self.game.field[field_nr]['occupied'] == True:
-                    if self.game.field[field_nr]['player'] == 1:
-                        # Draw X in this field
-                        pygame.draw.line(self.screen, LINE_COLOR,
-                                         (cross_line_horizontal['x1'], cross_line_horizontal['y1']),
-                                         (cross_line_horizontal['x2'], cross_line_horizontal['y2']),
-                                         8)
-                        pygame.draw.line(self.screen, LINE_COLOR,
-                                         (cross_line_vertical['x1'], cross_line_vertical['y1']),
-                                         (cross_line_vertical['x2'], cross_line_vertical['y2']),
-                                         8)
-                    else:
-                        # Draw Circle in this field
-                        pygame.draw.circle(self.screen, LINE_COLOR, circle_center, 50, 5)
+    def get_winning_row(self):
+        winning_directions_dict = {}
+        for key, value in self.game.field.items():
+            if value['winning_row'] and value['winning_direction']:
+                direction = value['winning_direction']
+                winning_directions_dict[direction] = [key]
+                print(winning_directions_dict)
+                return winning_directions_dict
+        return None
 
     def draw_winning_row(self):
-        for key in self.game.field:
-            if self.game.field[key]['winning_row'] == True:
-                print(f'Winning fields are: {key}, Richtung: {self.game.field[key]["winning_direction"]}')
+        winning_dict = self.get_winning_row()
+        if not winning_dict:
+            return None
+
+        x1, y1, x2, y2 = 0, 0, 0, 0
+        direction, field = list(winning_dict.items())[0]
+
+        if direction == 'horizontal':
+            x1 = self.coordinates[field[0]]['cross_line_horizontal']['x1']
+            y1 = self.coordinates[field[0]]['circle_center'][1]
+            x2 = x1 + self.row_spacing * 3
+            y2 = y1
+        elif direction == 'vertical':
+            x1 = self.coordinates[field[0]]['circle_center'][0]
+            y1 = self.coordinates[field[0]]['cross_line_horizontal']['y1']
+            x2 = x1
+            y2 = y1 + self.col_spacing * 3
+        elif direction == 'diagonal' and field[0] == 1:
+            x1 = self.coordinates[field[0]]['cross_line_horizontal']['x1']
+            y1 = self.coordinates[field[0]]['cross_line_horizontal']['y1']
+            x2 = self.coordinates[9]['cross_line_horizontal']['x2']
+            y2 = self.coordinates[9]['cross_line_horizontal']['y2']
+        elif direction == 'diagonal' and field[0] == 3:
+            x1 = self.coordinates[field[0]]['cross_line_vertical']['x2']
+            y1 = self.coordinates[field[0]]['cross_line_vertical']['y2']
+            x2 = self.coordinates[7]['cross_line_vertical']['x1']
+            y2 = self.coordinates[7]['cross_line_vertical']['y1']
+
+        pygame.draw.line(self.screen, WINNING_COLOR, (x1, y1), (x2, y2), 10)
 
     def score(self):
         player_score_text = self.font.render(f'Player: {self.game.player_score}', True, (WINNING_COLOR))

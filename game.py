@@ -1,5 +1,6 @@
 import time
 import pygame
+from constants import WINNING_COLOR
 
 
 class Game():
@@ -9,6 +10,7 @@ class Game():
         self.round = True
         self.player = None
         self.winner = None
+        self.font = pygame.font.Font(None, 36)
         self.field = {i: {'occupied': False, 'player': None, 'winning_row': False, 'winning_direction': None} for i in
                       range(1, 10)}
         self.winning_conditions = self.set_conditions()
@@ -24,8 +26,6 @@ class Game():
         return winning_conditions
 
     def set_icon(self, field_number):
-        print(
-            f"Field Number: {field_number}, occupied: {self.field[field_number]['occupied']}, player: {self.field[field_number]['player']}")
         if self.field[field_number]['occupied'] == False:
             if self.round == True:
                 self.player = 1
@@ -47,23 +47,32 @@ class Game():
                 return True
         return False
 
+    def wait(self):
+        waiting_for_click = True
+        while waiting_for_click:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    waiting_for_click = False
+
     def display_winner(self, screen):
         if self.winner is not None:
-
-            # Display the winner text
-            font = pygame.font.Font(None, 36)
-            winner_text = font.render(f'Winner: Player {self.winner}', True, (255, 255, 255))
+            winner_text = self.font.render(f'Winner: Player {self.winner}', True, WINNING_COLOR)
             screen.blit(winner_text, (260, 510))
-
-            # Update the display
             pygame.display.flip()
+            self.wait()
 
-            # Wait for the player to click on the game board
-            waiting_for_click = True
-            while waiting_for_click:
-                for event in pygame.event.get():
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        waiting_for_click = False
+    def draw(self):
+        if all(self.field[index]['occupied'] == True and self.field[index]['winning_row'] == False for index in
+               self.field):
+            return True
+        return False
+
+    def display_draw(self, screen):
+        draw_text = self.font.render('DRAW', True, WINNING_COLOR)
+        screen.blit(draw_text, (380, 510))
+        pygame.display.flip()
+        self.wait()
+        self.reset_game()
 
     def reset_game(self):
         self.round = True
