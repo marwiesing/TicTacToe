@@ -88,7 +88,7 @@ class Gameboard:
             if value['winning_row'] and value['winning_direction']:
                 direction = value['winning_direction']
                 winning_directions_dict[direction] = [key]
-                print(winning_directions_dict)
+                # print(winning_directions_dict)
                 return winning_directions_dict
         return None
 
