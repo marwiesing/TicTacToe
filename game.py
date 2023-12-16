@@ -29,10 +29,10 @@ class Game():
     def set_icon(self, field_number):
         if self.field[field_number]['occupied'] == False:
             if self.round == True:
-                self.player = Player.PLAYER_X
+                self.player = Player.PLAYER_X.value
                 self.round = False
             else:
-                self.player = Player.PLAYER_O
+                self.player = Player.PLAYER_O.value
                 self.round = True
                 time.sleep(.5)
             self.field[field_number]['occupied'] = True
@@ -57,7 +57,11 @@ class Game():
 
     def display_winner(self, screen):
         if self.winner is not None:
-            winner_text = self.font.render(f'Winner: Player {self.winner}', True, WINNING_COLOR)
+            if self.winner == Player.PLAYER_X.value:
+                winner_text = self.font.render(f'Congratulations you won!', True, WINNING_COLOR)
+            elif self.winner == Player.PLAYER_O.value:
+                winner_text = self.font.render(f'You lost this round.', True, WINNING_COLOR)
+
             screen.blit(winner_text, (260, 510))
             pygame.display.flip()
             self.wait()

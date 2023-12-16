@@ -37,7 +37,7 @@ def main():
             game.winner = game.player
             gameboard.draw_winning_row()
             game.display_winner(screen)
-            if game.player == Player.PLAYER_X:
+            if game.player == Player.PLAYER_X.value:
                 game.player_score += 1
             else:
                 game.computer_score += 1
