@@ -1,5 +1,6 @@
 import pygame
-from constants import GAME_COLOUR, LINE_COLOR, WINNING_COLOR
+from player import Player
+from constants import GAME_COLOUR, LINE_COLOR, WINNING_COLOR, FIRST_DIAGONAL_ROW, SECOND_DIAGONAL_ROW
 
 
 class Gameboard:
@@ -68,7 +69,7 @@ class Gameboard:
     def draw_xo(self):
         for field_nr, coord in self.coordinates.items():
             if self.game.field[field_nr]['occupied'] == True:
-                if self.game.field[field_nr]['player'] == 1:
+                if self.game.field[field_nr]['player'] == Player.PLAYER_X:
                     # Draw X in this field
                     pygame.draw.line(self.screen, LINE_COLOR,
                                      (coord['cross_line_horizontal']['x1'], coord['cross_line_horizontal']['y1']),
@@ -110,12 +111,12 @@ class Gameboard:
             y1 = self.coordinates[field[0]]['cross_line_horizontal']['y1']
             x2 = x1
             y2 = y1 + self.col_spacing * 3
-        elif direction == 'diagonal' and field[0] == 1:
+        elif direction == 'diagonal' and field[0] == FIRST_DIAGONAL_ROW:
             x1 = self.coordinates[field[0]]['cross_line_horizontal']['x1']
             y1 = self.coordinates[field[0]]['cross_line_horizontal']['y1']
             x2 = self.coordinates[9]['cross_line_horizontal']['x2']
             y2 = self.coordinates[9]['cross_line_horizontal']['y2']
-        elif direction == 'diagonal' and field[0] == 3:
+        elif direction == 'diagonal' and field[0] == SECOND_DIAGONAL_ROW:
             x1 = self.coordinates[field[0]]['cross_line_vertical']['x2']
             y1 = self.coordinates[field[0]]['cross_line_vertical']['y2']
             x2 = self.coordinates[7]['cross_line_vertical']['x1']

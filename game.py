@@ -1,5 +1,6 @@
 import time
 import pygame
+from player import Player
 from constants import WINNING_COLOR
 
 
@@ -28,10 +29,10 @@ class Game():
     def set_icon(self, field_number):
         if self.field[field_number]['occupied'] == False:
             if self.round == True:
-                self.player = 1
+                self.player = Player.PLAYER_X
                 self.round = False
             else:
-                self.player = 0
+                self.player = Player.PLAYER_O
                 self.round = True
                 time.sleep(.5)
             self.field[field_number]['occupied'] = True
