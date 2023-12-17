@@ -22,11 +22,14 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     x, y = event.pos
-                    # print(f"Mouse click at coordinates ({x}, {y})")
                     field_number = gameboard.get_field_number(x, y)
-                    if field_number is not None:
-                        # print(f"Mouse click in field {field_number}")
-                        game.set_icon(field_number)
+                    if field_number is not None and game.round == True:
+                        game.player = Player.PLAYER_X.value
+                        game.game_player_round(field_number)
+
+        if game.round == False:
+            game.player = Player.PLAYER_O.value
+            game.game_computer_round()
 
         screen.fill(GAME_COLOUR)
         gameboard.draw_game_field()
@@ -34,14 +37,12 @@ def main():
         gameboard.score()
 
         if game.win_round():
-            game.winner = game.player
+            if game.winner == Player.PLAYER_X.value:
+                game.player_score += 1
+            elif game.winner == Player.PLAYER_O.value:
+                game.computer_score += 1
             gameboard.draw_winning_row()
             game.display_winner(screen)
-            if game.player == Player.PLAYER_X.value:
-                game.player_score += 1
-            else:
-                game.computer_score += 1
-            game.reset_game()
         elif game.draw():
             game.display_draw(screen)
 

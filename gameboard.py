@@ -1,6 +1,7 @@
 import pygame
 from player import Player
-from constants import GAME_COLOUR, LINE_COLOR, WINNING_COLOR, FIRST_DIAGONAL_ROW, SECOND_DIAGONAL_ROW
+from constants import GAME_COLOUR, LINE_COLOR, WINNING_COLOR, FIRST_DIAGONAL_ROW, SECOND_DIAGONAL_ROW, \
+    COORDINATES_PLAYER_SCORE, COORDINATES_COMPUTER_SCORE
 
 
 class Gameboard:
@@ -127,6 +128,6 @@ class Gameboard:
     def score(self):
         player_score_text = self.font.render(f'Player: {self.game.player_score}', True, (WINNING_COLOR))
         computer_score_text = self.font.render(f'Computer: {self.game.computer_score}', True, (WINNING_COLOR))
-        self.screen.blit(player_score_text, (0, 5))
-        self.screen.blit(computer_score_text, (0, 30))
+        self.screen.blit(player_score_text, COORDINATES_PLAYER_SCORE)
+        self.screen.blit(computer_score_text, COORDINATES_COMPUTER_SCORE)
 
