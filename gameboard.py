@@ -94,35 +94,37 @@ class Gameboard:
                 return winning_directions_dict
         return None
 
+    def calculate_coordinates_for_direction(self, direction, field):
+        coordinates = self.coordinates[field[0]]
+        if direction == 'horizontal':
+            x1 = coordinates['cross_line_horizontal']['x1']
+            y1 = coordinates['circle_center'][1]
+            x2 = x1 + self.row_spacing * 3
+            y2 = y1
+        elif direction == 'vertical':
+            x1 = coordinates['circle_center'][0]
+            y1 = coordinates['cross_line_horizontal']['y1']
+            x2 = x1
+            y2 = y1 + self.col_spacing * 3
+        elif direction == 'diagonal' and field[0] == FIRST_DIAGONAL_ROW:
+            x1 = coordinates['cross_line_horizontal']['x1']
+            y1 = coordinates['cross_line_horizontal']['y1']
+            x2 = self.coordinates[9]['cross_line_horizontal']['x2']
+            y2 = self.coordinates[9]['cross_line_horizontal']['y2']
+        elif direction == 'diagonal' and field[0] == SECOND_DIAGONAL_ROW:
+            x1 = coordinates['cross_line_vertical']['x2']
+            y1 = coordinates['cross_line_vertical']['y2']
+            x2 = self.coordinates[7]['cross_line_vertical']['x1']
+            y2 = self.coordinates[7]['cross_line_vertical']['y1']
+        return x1, y1, x2, y2
+
     def draw_winning_row(self):
         winning_dict = self.get_winning_row()
         if not winning_dict:
             return None
 
-        x1, y1, x2, y2 = 0, 0, 0, 0
         direction, field = list(winning_dict.items())[0]
-
-        if direction == 'horizontal':
-            x1 = self.coordinates[field[0]]['cross_line_horizontal']['x1']
-            y1 = self.coordinates[field[0]]['circle_center'][1]
-            x2 = x1 + self.row_spacing * 3
-            y2 = y1
-        elif direction == 'vertical':
-            x1 = self.coordinates[field[0]]['circle_center'][0]
-            y1 = self.coordinates[field[0]]['cross_line_horizontal']['y1']
-            x2 = x1
-            y2 = y1 + self.col_spacing * 3
-        elif direction == 'diagonal' and field[0] == FIRST_DIAGONAL_ROW:
-            x1 = self.coordinates[field[0]]['cross_line_horizontal']['x1']
-            y1 = self.coordinates[field[0]]['cross_line_horizontal']['y1']
-            x2 = self.coordinates[9]['cross_line_horizontal']['x2']
-            y2 = self.coordinates[9]['cross_line_horizontal']['y2']
-        elif direction == 'diagonal' and field[0] == SECOND_DIAGONAL_ROW:
-            x1 = self.coordinates[field[0]]['cross_line_vertical']['x2']
-            y1 = self.coordinates[field[0]]['cross_line_vertical']['y2']
-            x2 = self.coordinates[7]['cross_line_vertical']['x1']
-            y2 = self.coordinates[7]['cross_line_vertical']['y1']
-
+        x1, y1, x2, y2 = self.calculate_coordinates_for_direction(direction, field)
         pygame.draw.line(self.screen, WINNING_COLOR, (x1, y1), (x2, y2), 10)
 
     def score(self):

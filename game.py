@@ -1,7 +1,8 @@
 import time
 import pygame
 from player import Player
-from constants import WINNING_COLOR, COORDINATES_GAME_WIN, COORDINATES_GAME_LOSE, COORDINATES_GAME_DRAW
+from constants import WINNING_COLOR, COORDINATES_GAME_WIN, COORDINATES_GAME_LOSE, COORDINATES_GAME_DRAW, \
+    COORDINATES_CONTINUE
 
 
 class Game():
@@ -28,13 +29,25 @@ class Game():
 
     def game_player_round(self, field_number):
         if self.field[field_number]['occupied'] == False:
-            self.round = False
+            if self.round == True:
+                self.player = Player.PLAYER_X.value
+                self.round = False
+            else:
+                self.player = Player.PLAYER_O.value
+                self.round = True
+                time.sleep(.5)
             self.field[field_number]['occupied'] = True
             self.field[field_number]['player'] = self.player
-            time.sleep(0.5)
 
-    def game_computer_round(self):
-        None
+    # def process_player_move (self, field_number):
+    #     if self.field[field_number]['occupied'] == False:
+    #         self.round = False
+    #         self.field[field_number]['occupied'] = True
+    #         self.field[field_number]['player'] = self.player
+    #         time.sleep(0.5)
+
+    # def process_computer_move (self):
+    #     None
 
     def win_round(self):
         for condition in self.winning_conditions:
@@ -56,19 +69,22 @@ class Game():
     def display_winner(self, screen):
         if self.winner is not None:
             if self.winner == Player.PLAYER_X.value:
-                display_text = self.font.render(f'Congratulations you won!', True, WINNING_COLOR)
+                text = 'Congratulations you won!'
                 text_coordinates = COORDINATES_GAME_WIN
             elif self.winner == Player.PLAYER_O.value:
-                display_text = self.font.render(f'You lost this round.', True, WINNING_COLOR)
+                text = 'You lost this round.'
                 text_coordinates = COORDINATES_GAME_LOSE
-        self.display_text(screen, display_text, text_coordinates)
+        self.display_text(screen, text, text_coordinates)
 
     def display_draw(self, screen):
-        display_text = self.font.render('DRAW', True, WINNING_COLOR)
-        self.display_text(screen, display_text, COORDINATES_GAME_DRAW)
+        text = 'DRAW!'
+        self.display_text(screen, text, COORDINATES_GAME_DRAW)
 
     def display_text(self, screen, text, coordinates):
-        screen.blit(text, coordinates)
+        display_text = self.font.render(text, True, WINNING_COLOR)
+        screen.blit(display_text, coordinates)
+        continue_text = self.font.render('Click to continue.', True, WINNING_COLOR)
+        screen.blit(continue_text, COORDINATES_CONTINUE)
         pygame.display.flip()
         self.wait()
         self.reset_game()

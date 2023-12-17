@@ -23,13 +23,15 @@ def main():
                 if event.button == 1:
                     x, y = event.pos
                     field_number = gameboard.get_field_number(x, y)
-                    if field_number is not None and game.round == True:
-                        game.player = Player.PLAYER_X.value
+                    if field_number is not None:
                         game.game_player_round(field_number)
+        #             if field_number is not None and game.round == True:
+        #                 game.player = Player.PLAYER_X.value
+        #                 game.process_player_move(field_number)
 
-        if game.round == False:
-            game.player = Player.PLAYER_O.value
-            game.game_computer_round()
+        # if game.round == False:
+        #     game.player = Player.PLAYER_O.value
+        #     game.process_computer_move()
 
         screen.fill(GAME_COLOUR)
         gameboard.draw_game_field()
