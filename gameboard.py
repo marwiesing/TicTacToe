@@ -69,20 +69,19 @@ class Gameboard:
 
     def draw_xo(self):
         for field_nr, coord in self.coordinates.items():
-            if self.game.field[field_nr]['occupied'] == True:
-                if self.game.field[field_nr]['player'] == Player.PLAYER_X.value:
-                    # Draw X in this field
-                    pygame.draw.line(self.screen, LINE_COLOR,
-                                     (coord['cross_line_horizontal']['x1'], coord['cross_line_horizontal']['y1']),
-                                     (coord['cross_line_horizontal']['x2'], coord['cross_line_horizontal']['y2']),
-                                     8)
-                    pygame.draw.line(self.screen, LINE_COLOR,
-                                     (coord['cross_line_vertical']['x1'], coord['cross_line_vertical']['y1']),
-                                     (coord['cross_line_vertical']['x2'], coord['cross_line_vertical']['y2']),
-                                     8)
-                else:
-                    # Draw Circle in this field
-                    pygame.draw.circle(self.screen, LINE_COLOR, coord['circle_center'], 50, 5)
+            if self.game.field[field_nr]['player'] == Player.PLAYER_X.value:
+                # Draw X in this field
+                pygame.draw.line(self.screen, LINE_COLOR,
+                                 (coord['cross_line_horizontal']['x1'], coord['cross_line_horizontal']['y1']),
+                                 (coord['cross_line_horizontal']['x2'], coord['cross_line_horizontal']['y2']),
+                                 8)
+                pygame.draw.line(self.screen, LINE_COLOR,
+                                 (coord['cross_line_vertical']['x1'], coord['cross_line_vertical']['y1']),
+                                 (coord['cross_line_vertical']['x2'], coord['cross_line_vertical']['y2']),
+                                 8)
+            elif self.game.field[field_nr]['player'] == Player.PLAYER_O.value:
+                # Draw Circle in this field
+                pygame.draw.circle(self.screen, LINE_COLOR, coord['circle_center'], 50, 5)
 
     def get_winning_row(self):
         winning_directions_dict = {}

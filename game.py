@@ -1,8 +1,11 @@
 import time
 import pygame
+import random
 from player import Player
+# from mcts import Mcts, Node
+# from MCTSNode import MCTSNode
 from constants import WINNING_COLOR, COORDINATES_GAME_WIN, COORDINATES_GAME_LOSE, COORDINATES_GAME_DRAW, \
-    COORDINATES_CONTINUE
+    COORDINATES_CONTINUE, COMPUTER_FIRST_MOVE_OPTIONS
 
 
 class Game():
@@ -12,8 +15,10 @@ class Game():
         self.round = True
         self.player = None
         self.winner = None
+        self.first_round = True
         self.font = pygame.font.Font(None, 36)
-        self.field = {i: {'occupied': False, 'player': None, 'winning_row': False, 'winning_direction': None} for i in
+        # self.mcts = Mcts()
+        self.field = {i: {'player': Player.UNOCCUPIED.value, 'winning_row': False, 'winning_direction': None} for i in
                       range(1, 10)}
         self.winning_conditions = self.set_conditions()
 
@@ -27,32 +32,69 @@ class Game():
         winning_conditions.append({'diagonal': [(j + j + 1) for j in range(1, 4)]})
         return winning_conditions
 
+    #### will be deleted if computer player is ready!
     def game_player_round(self, field_number):
-        if self.field[field_number]['occupied'] == False:
+        if self.field[field_number]['player'] == Player.UNOCCUPIED.value:
             if self.round == True:
                 self.player = Player.PLAYER_X.value
-                self.round = False
+                self.set_game_round(False)
             else:
                 self.player = Player.PLAYER_O.value
-                self.round = True
+                self.set_game_round(True)
                 time.sleep(.5)
-            self.field[field_number]['occupied'] = True
             self.field[field_number]['player'] = self.player
 
-    # def process_player_move (self, field_number):
-    #     if self.field[field_number]['occupied'] == False:
-    #         self.round = False
-    #         self.field[field_number]['occupied'] = True
-    #         self.field[field_number]['player'] = self.player
-    #         time.sleep(0.5)
+    def process_player_move(self, field_number):
+        if self.field[field_number]['player'] == Player.UNOCCUPIED.value:
+            self.player = Player.PLAYER_X.value
+            self.set_game_round(False)
+            self.field[field_number]['player'] = self.player
 
-    # def process_computer_move (self):
-    #     None
+    def set_game_round(self, turn):
+        self.round = turn
+
+    # def process_computer_move(self):
+    #     self.player = Player.PLAYER_O.value
+
+    #     initial_state = {i: {'player': Player.UNOCCUPIED.value, 'winning_row': False, 'winning_direction': None} for i in range(1, 10)}
+    #     root = MCTSNode(initial_state)
+    #     WINNING_CONDITIONS = set_conditions()
+
+    #     # Run MCTS for a certain number of iterations
+    #     for _ in range(num_iterations):
+    #         selected_node = select(root)
+    #         expand_node(selected_node)
+    #         result = simulate(selected_node)
+    #         backpropagate(selected_node, result)
+
+    #     After the iterations, choose the best move based on the visit counts
+    #     best_move = max(root.children.keys(), key=lambda move: root.children[move].visits)
+
+    #     Set self.round to True for the next player's turn
+    #     self.set_game_round(True)
+
+
+    def process_first_round(self):
+        while self.first_round:
+            move = random.choice(COMPUTER_FIRST_MOVE_OPTIONS)
+            if self.field[move]['player'] == Player.UNOCCUPIED.value:
+                self.field[move]['player'] = Player.PLAYER_O.value
+                self.set_game_round(True)
+                self.first_round = False
+
+    def make_computer_move(self, selected_move):
+        # Optionally, you may add a delay to make the computer move visible
+        time.sleep(0.3)
+        # Implement the logic to update self.field based on the selected move
+        # For example, update self.field based on the selected_move
+        # This would include marking the selected field as occupied by the computer
+        # You may also need to update other game-related variables based on the move
+        pass
 
     def win_round(self):
         for condition in self.winning_conditions:
             direction, indices = list(condition.items())[0]
-            if all(self.field[index]['occupied'] and self.field[index]['player'] == self.player for index in indices):
+            if all(self.field[index]['player'] == self.player for index in indices):
                 self.winner = self.player
                 for index in indices:
                     self.field[index]['winning_row'] = True
@@ -61,8 +103,8 @@ class Game():
         return False
 
     def draw(self):
-        if all(self.field[index]['occupied'] == True and self.field[index]['winning_row'] == False for index in
-               self.field):
+        if all(self.field[index]['player'] != Player.UNOCCUPIED.value and self.field[index]['winning_row'] == False for
+               index in self.field):
             return True
         return False
 
@@ -100,8 +142,8 @@ class Game():
         self.round = True
         self.player = None
         self.winner = None
+        self.first_round = True
         for key in self.field:
-            self.field[key]['occupied'] = False
-            self.field[key]['player'] = None
+            self.field[key]['player'] = Player.UNOCCUPIED.value
             self.field[key]['winning_row'] = False
             self.field[key]['winning_direction'] = False

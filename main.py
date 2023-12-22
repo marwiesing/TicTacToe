@@ -26,11 +26,11 @@ def main():
                     if field_number is not None:
                         game.game_player_round(field_number)
         #             if field_number is not None and game.round == True:
-        #                 game.player = Player.PLAYER_X.value
         #                 game.process_player_move(field_number)
 
-        # if game.round == False:
-        #     game.player = Player.PLAYER_O.value
+        if game.round == False and game.first_round:
+            game.process_first_round()
+        # elif game.round == False:
         #     game.process_computer_move()
 
         screen.fill(GAME_COLOUR)
