@@ -2,8 +2,7 @@ import time
 import pygame
 import random
 from player import Player
-# from mcts import Mcts, Node
-# from MCTSNode import MCTSNode
+from mcts import MCTSNode
 from constants import WINNING_COLOR, COORDINATES_GAME_WIN, COORDINATES_GAME_LOSE, COORDINATES_GAME_DRAW, \
     COORDINATES_CONTINUE, COMPUTER_FIRST_MOVE_OPTIONS
 
@@ -17,7 +16,6 @@ class Game():
         self.winner = None
         self.first_round = True
         self.font = pygame.font.Font(None, 36)
-        # self.mcts = Mcts()
         self.field = {i: {'player': Player.UNOCCUPIED.value, 'winning_row': False, 'winning_direction': None} for i in
                       range(1, 10)}
         self.winning_conditions = self.set_conditions()
@@ -53,27 +51,6 @@ class Game():
     def set_game_round(self, turn):
         self.round = turn
 
-    # def process_computer_move(self):
-    #     self.player = Player.PLAYER_O.value
-
-    #     initial_state = {i: {'player': Player.UNOCCUPIED.value, 'winning_row': False, 'winning_direction': None} for i in range(1, 10)}
-    #     root = MCTSNode(initial_state)
-    #     WINNING_CONDITIONS = set_conditions()
-
-    #     # Run MCTS for a certain number of iterations
-    #     for _ in range(num_iterations):
-    #         selected_node = select(root)
-    #         expand_node(selected_node)
-    #         result = simulate(selected_node)
-    #         backpropagate(selected_node, result)
-
-    #     After the iterations, choose the best move based on the visit counts
-    #     best_move = max(root.children.keys(), key=lambda move: root.children[move].visits)
-
-    #     Set self.round to True for the next player's turn
-    #     self.set_game_round(True)
-
-
     def process_first_round(self):
         while self.first_round:
             move = random.choice(COMPUTER_FIRST_MOVE_OPTIONS)
@@ -81,15 +58,29 @@ class Game():
                 self.field[move]['player'] = Player.PLAYER_O.value
                 self.set_game_round(True)
                 self.first_round = False
+                time.sleep(.5)
 
-    def make_computer_move(self, selected_move):
-        # Optionally, you may add a delay to make the computer move visible
-        time.sleep(0.3)
-        # Implement the logic to update self.field based on the selected move
-        # For example, update self.field based on the selected_move
-        # This would include marking the selected field as occupied by the computer
-        # You may also need to update other game-related variables based on the move
-        pass
+    def process_computer_move(self):
+        root = MCTSNode(self.field)
+        num_iterations = 1000
+
+        for _ in range(num_iterations):
+            selected_node = MCTSNode.select(root)
+            new_node = MCTSNode.expand_node(selected_node)
+            if new_node:
+                result = MCTSNode.simulate(new_node, self.winning_conditions)
+                MCTSNode.backpropagate(new_node, result)
+
+        best_move = max(root.children, key=lambda child: child.visits).move
+        if self.field[best_move]['player'] == Player.UNOCCUPIED.value and self.round == False:
+            self.make_computer_move(best_move)
+
+    def make_computer_move(self, move):
+        self.player = Player.PLAYER_O.value
+        self.set_game_round(True)
+        self.field[move]['player'] = self.player
+        time.sleep(1.5)
+        print(f'End Turn Player 0 on field:{move}')
 
     def win_round(self):
         for condition in self.winning_conditions:
