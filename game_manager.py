@@ -1,3 +1,4 @@
+# game_manager.py
 import pygame
 from gameboard import Gameboard
 from game import Game
@@ -21,6 +22,8 @@ class GameManager:
                     self.handle_player_click(event.pos)
                 elif self.game.round == False and self.game.first_round:
                     self.game.process_first_round()
+                elif self.game.round == False and not self.game.first_round:
+                    self.handle_computer_move()
 
             self.update_display()
             pygame.display.flip()
@@ -31,12 +34,9 @@ class GameManager:
         field_number = self.gameboard.get_field_number(x, y)
         if field_number is not None and self.game.round:
             self.game.process_player_move(field_number)
-        elif not self.game.round:
-            self.handle_computer_move(field_number)
 
-    def handle_computer_move(self, field_number):
-        #self.game.process_computer_move()
-        self.game.game_player_round(field_number)
+    def handle_computer_move(self):
+        self.game.process_computer_move()
 
     def update_display(self):
         self.screen.fill(GAME_COLOUR)
