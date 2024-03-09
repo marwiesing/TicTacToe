@@ -63,11 +63,15 @@ class Game():
 
     def process_computer_move(self):
         move = self.computer_move.process_computer_move(self.field)
+        if not move:
+            print(f'End Turn Player 0 no field available.')
+            self.wait()
+            return None
         self.player = Player.PLAYER_O.value
         self.set_game_round(True)
         self.field[move]['player'] = self.player
-        time.sleep(.8)
         print(f'End Turn Player 0 on field:{move}')
+        time.sleep(.8)
 
     def win_round(self):
         for condition in self.winning_conditions:

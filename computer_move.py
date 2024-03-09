@@ -51,5 +51,7 @@ class Computer_Move():
             return rnd.choice(open_moves['offense'])
         elif open_moves['defense']:
             return rnd.choice(open_moves['defense'])
-        else:
+        elif open_moves['random']:
             return rnd.choice(open_moves['random'])
+        else:
+            return None
