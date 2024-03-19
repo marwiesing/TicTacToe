@@ -1,29 +1,45 @@
 # game_manager.py
 import pygame
-from gameboard import Gameboard
+
+from constants import X, Y, WIDTH, HEIGHT, ROWS, COLUMNS, GAME_COLOUR
 from game import Game
-from player import Player
-from constants import RUNNING, X, Y, WIDTH, HEIGHT, ROWS, COLUMNS, GAME_COLOUR
+from gameboard import Gameboard
+from player import Player, WINNER
+from constants import WINNING_COLOR, COORDINATES_GAME_WIN, COORDINATES_GAME_LOSE, COORDINATES_GAME_DRAW, \
+    COORDINATES_CONTINUE
 
 class GameManager:
     def __init__(self, screen, clock):
         self.screen = screen
         self.clock = clock
+        self.font = pygame.font.Font(None, 36)
         self.game = Game()
         self.gameboard = Gameboard(self.game, screen, X, Y, WIDTH, HEIGHT, ROWS, COLUMNS)
 
     def run_game_loop(self):
-        global RUNNING
+        RUNNING = True
         while RUNNING:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    RUNNING = False
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    self.handle_player_click(event.pos)
-                elif self.game.round == False and self.game.first_round:
-                    self.game.process_first_round()
-                elif self.game.round == False and not self.game.first_round:
-                    self.handle_computer_move()
+            if self.game.winner is None:
+                if self.game.check_if_game_ended():
+                    if self.game.winner == Player.PLAYER_X.value:
+                        self.game.player_score += 1
+                    elif self.game.winner == Player.PLAYER_O.value:
+                        self.game.computer_score += 1
+                else:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            RUNNING = False
+                            break
+                        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                            self.handle_player_click(event.pos)
+                        elif self.game.round == False and self.game.first_round:
+                            self.game.process_first_round()
+                        elif self.game.round == False and not self.game.first_round:
+                            self.handle_computer_move()
+            else:
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        self.game.reset_game()
 
             self.update_display()
             pygame.display.flip()
@@ -43,16 +59,31 @@ class GameManager:
         self.gameboard.draw_game_field()
         self.gameboard.draw_xo()
         self.gameboard.score()
+        self.display_end_result()
 
-        if self.game.win_round():
-            self.handle_winner()
-        elif self.game.draw():
-            self.game.display_draw(self.screen)
+    def display_end_result(self):
+        if self.game.winner is not None:
+            text = None
+            text_coordinates = None
+            drawWinningRow = False
+            if self.game.winner == WINNER.PLAYER_X.value:
+                text = 'Congratulations you won!'
+                text_coordinates = COORDINATES_GAME_WIN
+                drawWinningRow = True
+            elif self.game.winner == WINNER.PLAYER_O.value:
+                text = 'You lost this round.'
+                text_coordinates = COORDINATES_GAME_LOSE
+                drawWinningRow = True
+            elif self.game.winner == WINNER.DRAW.value:
+                text = 'DRAW!'
+                text_coordinates = COORDINATES_GAME_DRAW
+            if text and text_coordinates:
+                self.display_text(self.screen, text, text_coordinates)
+            if drawWinningRow:
+                self.gameboard.draw_winning_row()
 
-    def handle_winner(self):
-        if self.game.winner == Player.PLAYER_X.value:
-            self.game.player_score += 1
-        elif self.game.winner == Player.PLAYER_O.value:
-            self.game.computer_score += 1
-        self.gameboard.draw_winning_row()
-        self.game.display_winner(self.screen)
+    def display_text(self, screen, text, coordinates):
+        display_text = self.font.render(text, True, WINNING_COLOR)
+        screen.blit(display_text, coordinates)
+        continue_text = self.font.render('Click to continue.', True, WINNING_COLOR)
+        screen.blit(continue_text, COORDINATES_CONTINUE)

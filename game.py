@@ -1,10 +1,8 @@
 import time
-import pygame
 import random
-from player import Player
+from player import Player, WINNER
 from computer_move import Computer_Move
-from constants import WINNING_COLOR, COORDINATES_GAME_WIN, COORDINATES_GAME_LOSE, COORDINATES_GAME_DRAW, \
-    COORDINATES_CONTINUE, COMPUTER_FIRST_MOVE_OPTIONS
+from constants import COMPUTER_FIRST_MOVE_OPTIONS
 
 
 class Game():
@@ -15,7 +13,6 @@ class Game():
         self.player = None
         self.winner = None
         self.first_round = True
-        self.font = pygame.font.Font(None, 36)
         self.field = {i: {'player': Player.UNOCCUPIED.value, 'winning_row': False, 'winning_direction': None} for i in
                       range(1, 10)}
         self.winning_conditions = self.set_conditions()
@@ -65,13 +62,17 @@ class Game():
         move = self.computer_move.process_computer_move(self.field)
         if not move:
             print(f'End Turn Player 0 no field available.')
-            self.wait()
             return None
         self.player = Player.PLAYER_O.value
         self.set_game_round(True)
         self.field[move]['player'] = self.player
         print(f'End Turn Player 0 on field:{move}')
         time.sleep(.8)
+
+    def check_if_game_ended(self):
+        if self.win_round():
+            return True
+        return self.draw()
 
     def win_round(self):
         for condition in self.winning_conditions:
@@ -87,38 +88,9 @@ class Game():
     def draw(self):
         if all(self.field[index]['player'] != Player.UNOCCUPIED.value and self.field[index]['winning_row'] == False for
                index in self.field):
+            self.winner = WINNER.DRAW.value
             return True
         return False
-
-    def display_winner(self, screen):
-        if self.winner is not None:
-            if self.winner == Player.PLAYER_X.value:
-                text = 'Congratulations you won!'
-                text_coordinates = COORDINATES_GAME_WIN
-            elif self.winner == Player.PLAYER_O.value:
-                text = 'You lost this round.'
-                text_coordinates = COORDINATES_GAME_LOSE
-        self.display_text(screen, text, text_coordinates)
-
-    def display_draw(self, screen):
-        text = 'DRAW!'
-        self.display_text(screen, text, COORDINATES_GAME_DRAW)
-
-    def display_text(self, screen, text, coordinates):
-        display_text = self.font.render(text, True, WINNING_COLOR)
-        screen.blit(display_text, coordinates)
-        continue_text = self.font.render('Click to continue.', True, WINNING_COLOR)
-        screen.blit(continue_text, COORDINATES_CONTINUE)
-        pygame.display.flip()
-        self.wait()
-        self.reset_game()
-
-    def wait(self):
-        waiting_for_click = True
-        while waiting_for_click:
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    waiting_for_click = False
 
     def reset_game(self):
         self.round = True
